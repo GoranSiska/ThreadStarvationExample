@@ -23,25 +23,36 @@ dotnet-counters monitor --name iisexpress
 To observe various behaviours:
 
 1. No issues with quick synchronous operation
+
 Make sure TS project Properties/Application/General/Target framework is set to 5.0 (and framework is installed on your machine).
 Make sure in TS project `WeatherForecastController` only lines under `// quick synchronous operation` are uncommented.
 TSClient will report equal number of "s" sent requests and "r" received responses in the console.
 ThreadPool Thread Count will stabilize and not rise.
 
 2.  No issues with long asynchronous operation
+
 Make sure TS project Properties/Application/General/Target framework is set to 5.0 (and framework is installed on your machine).
 Make sure in TS project `WeatherForecastController` only lines under `// long aynchronous operation` are uncommented.
 TSClient will report number of "s" sent requests then stabilize and report equal number of "s" sent requests and "r" received responses in the console.
 ThreadPool Thread Count will rise then stabilize and not rise again.
 
 2.  Issues with blocking long asynchronous operation
+
 Make sure TS project Properties/Application/General/Target framework is set to 5.0 (and framework is installed on your machine).
 Make sure in TS project `WeatherForecastController` only lines under `// block long asynchronous operation` are uncommented.
-TSClient will report more "s" sent requests then "r" received responses in the console.
+TSClient will report more "s" sent requests then "r" received responses in the console. Eventually no responses will be received.
 ThreadPool Thread Count will rise and never stabilize. Thread Queue Length will rise as well.
 
 3.  Resolved issues with blocking long asynchronous operation using .net 6.0
+
 Make sure TS project Properties/Application/General/Target framework is set to 6.0 (and framework is installed on your machine).
 Make sure in TS project `WeatherForecastController` only lines under `// block long asynchronous operation` are uncommented.
 TSClient will report more "s" sent requests then "r" received responses in the console.
+ThreadPool Thread Count will rise higher then in scenario 1, then stabilize and not rise again.
+
+4.  Issues with blocking long asynchronous operation in a nonstandard way using .net 6.0
+
+Make sure TS project Properties/Application/General/Target framework is set to 6.0 (and framework is installed on your machine).
+Make sure in TS project `WeatherForecastController` only lines under `// block long asynchronous operation in a non-standard way` are uncommented.
+TSClient will report more "s" sent requests then "r" received responses in the console. Eventually no responses will be received.
 ThreadPool Thread Count will rise and never stabilize. Thread Queue Length will rise as well.
