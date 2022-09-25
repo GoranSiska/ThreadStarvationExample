@@ -7,13 +7,19 @@ namespace TSClient
 {
     internal class Program
     {
+#pragma warning disable S1075 // URIs should not be hardcoded
+        private const string UriString = @"https://localhost:44343";
+#pragma warning restore S1075 // URIs should not be hardcoded
+
+        protected Program()
+        {}
+
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
 
-
             var client = new HttpClient();
-            client.BaseAddress = new Uri(@"https://localhost:44343");
+            client.BaseAddress = new Uri(UriString);
 
             Console.WriteLine("Press S to start");
             while (true)
@@ -38,33 +44,29 @@ namespace TSClient
                         break;
                     }
                 }
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
                 _ = Task.Run(async () =>
                 {
-                    //while (!cancellationTokenSource.Token.IsCancellationRequested)
-                    //{
-                    Console.Write("s");
-                    client.GetAsync("weatherforecast").ContinueWith(async (m) =>
+                    Console.Write("s"); //sent
+                    client.GetAsync("weatherforecast").ContinueWith(async (responseTask) =>
                     {
-                        if (m.Exception != null)
+                        if (responseTask.Exception != null)
                         {
-                            Console.WriteLine(m.Exception);
+                            Console.WriteLine(responseTask.Exception);
+                            return;
                         }
-                        else
-                        {
-                            var r = await m;
-                            var c = await r.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            //Console.WriteLine(c);
-                            Console.Write("r");
-                        }
-                    });
-                    //Console.WriteLine("calc");
-                    //count++;
-                    //var diff = DateTime.Now - start;
-                    //Console.WriteLine(count / diff.TotalSeconds);
-                    //Thread.Sleep(10000);
-                    //}
-                });
 
+                        var response = await responseTask;
+                        await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        Console.Write("r"); //received
+                    });
+                });
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                
+                // throttle client
                 Thread.Sleep(50);
             }
 

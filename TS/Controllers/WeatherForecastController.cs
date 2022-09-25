@@ -24,60 +24,44 @@ namespace TS.Controllers
             _logger = logger;
         }
 
-        async Task<bool> PretendQueryCustomerFromDbAsync()
+        async Task<IEnumerable<WeatherForecast>> LongOperation()
         {
-            // To keep the demo app easy to set up and performing consistently we have replaced a real database query
-            // with a fixed delay of 500ms. The impact on application performance should be similar to using a real
-            // database that had similar latency.
+            // simulating long running operation
             await Task.Delay(1000);
-            return true;
+            return Operation();
+        }
+
+        IEnumerable<WeatherForecast> Operation()
+        {
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = rng.Next(-20, 55),
+                Summary = Summaries[rng.Next(Summaries.Length)]
+            })
+            .ToArray();
         }
 
         [HttpGet]
         public async Task<IEnumerable<WeatherForecast>> Get()
         {
-            bool result = false;
-            //Task dbTask = Task.Delay(1000);
-            //while (!dbTask.IsCompleted)
+            // quick synchronous operation
+            return Operation();
+
+            // long aynchronous operation
+            // return await LongOperation();
+
+            // block long asynchronous operation - DO NOT USE THIS PATTERN
+            // return LongOperation().Result;
+
+            // block long asynchronous operation in a non-standard way - DO NOT USE THIS PATTERN
+            //var longOperation = LongOperation();
+            //while (!longOperation.IsCompleted)
             //{
-            //    Thread.Sleep(10);
-            //    result = true;
+            //    Thread.Sleep(1000);
             //}
-            //dbTask.Wait();
-
-            result = PretendQueryCustomerFromDbAsync().Result;
-
-            //result = Task.Run(() =>
-            //{
-            //    Thread.Sleep(1000);
-            //    return true;
-            //}).Result;
-
-            //await Task.Yield();
-            //var result = Task.Factory.StartNew(() => {
-            //    Thread.Sleep(1000);
-            //    return true;
-            //}).Result;
-
-            //await Task.Delay(1000);
-
-            //result = true;
-
-            if (result)
-            {
-                var rng = new Random();
-                return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-                {
-                    Date = DateTime.Now.AddDays(index),
-                    TemperatureC = rng.Next(-20, 55),
-                    Summary = Summaries[rng.Next(Summaries.Length)]
-                })
-                .ToArray();
-            } 
-            else
-            {
-                return null;
-            }
+            //return longOperation.Result;
         }
     }
 }
